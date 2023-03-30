@@ -23,19 +23,7 @@ print(logWith("Running"))
 keyboard.add_hotkey('ctrl+shift+a', logWithOut, args=("Test", "food"))
 
 
-# root = Tk()
-
-# frm = ttk.Frame(root, padding=10)
-
-# frm.grid()
-
-# ttk.Label(frm, text="Hello World!").grid(column=0, row=0)
-# ttk.Button(frm, text="Quit", command=root.destroy).grid(column=1, row=0)
-
-
-# root.mainloop()
-    
-
+director = "C:/windowThing/"
 
 class MainApplication(tk.Frame):
     def __init__(self, master=None):
@@ -52,16 +40,6 @@ class MainApplication(tk.Frame):
         file_menu = tk.Menu(menu)
         menu.add_cascade(label="File", menu=file_menu)
 
-        # # create a list of pop-up windows
-        # popups = ["Popup 1", "Popup 2", "Popup 3"]
-
-        # # create a button for each popup
-        # for popup_name in popups:
-        #     btn = tk.Button(self.master, text=popup_name, command=lambda popup_name=popup_name: self.open_popup(popup_name))
-        #     btn.pack()
-
-        #     # add the popup to the "File" dropdown menu
-        #     file_menu.add_command(label=popup_name, command=lambda popup_name=popup_name: self.open_popup(popup_name))
         file_menu.add_command(label="Save settings location", command=self.save_file)
 
 
@@ -88,6 +66,23 @@ class MainApplication(tk.Frame):
         # add an "All settings" item to the settings menu
         settings_menu.add_command(label="All settings window", command=self.save_settings)
 
+
+        self.makeFileData_button = tk.Button(self.master, text="Make app data", command=self.makeAppDataStuff)
+        self.makeFileData_button.pack()
+
+
+    def makeAppDataStuff(self):
+        try:
+            os.mkdir(director)
+        except:
+            print("Can't make dir")
+        
+        try:
+            with open(director+"settings.toml") as f:
+                f.write()
+        except:
+            print("Can't write to settings")
+        
     def open_popup(self, popup_name):
         # create the pop-up window
         popup = tk.Toplevel(self.master)
@@ -115,20 +110,12 @@ class MainApplication(tk.Frame):
         self.is_amazing_label = tk.Label(settings_tab, text=f"Is Amazing: {self.is_amazing_var.get()}")
         self.is_amazing_label.pack()
 
-        # self.radio_label = tk.Label(settings_tab, text=f"Radio1: {self.radio_var.get()}")
-        # self.radio_label.pack()
-
+        
         # create the "Change values" tab
         change_values_tab = ttk.Frame(tab_control)
         tab_control.add(change_values_tab, text="Change Values")
 
-        # # add the "Is Amazing" checkbox to the "Change Values" tab
-        # is_amazing_checkbutton = tk.Checkbutton(change_values_tab, text="Is Amazing", variable=self.is_amazing_var)
-        # is_amazing_checkbutton.pack()
 
-        # # add the radio button group to the "Change Values" tab
-        # radio_label = tk.Label(change_values_tab, text="Radio:")
-        # radio_label.pack()
         self.is_amazing_checkbutton = tk.Checkbutton(change_values_tab, text="Is Amazing", variable=self.is_amazing_var)
         self.is_amazing_checkbutton.pack()
 
@@ -161,7 +148,7 @@ class MainApplication(tk.Frame):
             "Is Amazing": is_amazing,
             "Radio": radio
         }
-        with open("settings.toml", "w") as f:
+        with open(director+"settings.toml", "w") as f:
             toml.dump(settings_dict, f)
         
         # update the "All Settings" tab to reflect the new values
@@ -171,7 +158,7 @@ class MainApplication(tk.Frame):
 
     def save_file(self):
         # open a file dialog box for saving a file
-        file_path = filedialog.asksaveasfilename()
+        file_path = filedialog.asksaveasfilename(initialdir=director, initialfile="settings.toml")
 
         # do something with the file path
         print("Saving file to:", file_path)
