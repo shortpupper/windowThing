@@ -2,10 +2,24 @@ from tkinter import *
 from tkinter import ttk, filedialog
 import tkinter as tk
 
-import time, os, keyboard, toml, webview
+import time, os, keyboard, toml#, webview
+
+from PyQt5.QtCore import QUrl
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 
 
+from urllib.request import urlopen
+from html.parser import HTMLParser
+
+class MyHTMLParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.data = ""
+
+    def handle_data(self, data):
+        self.data += data
 
 ## functions 
 
@@ -88,6 +102,17 @@ class MainApplication(tk.Frame):
         self.project_menu = tk.Menu(menu)
         menu.add_cascade(label="Project Menu", menu=self.project_menu)
         self.project_menu.add_command(label="Termoil", command=self.open_terminal)
+        self.project_menu.add_command(label="WebPage", command=self.openWeb)
+
+
+    def openWeb(self):
+        app = QApplication([])
+        webview = QWebEngineView()
+        webview.load(QUrl("https://www.google.com"))
+        webview.show()
+        app.exec_()
+
+
 
     # define a function to open a window with a terminal
     def open_terminal(self, n):
