@@ -36,7 +36,7 @@ def logWithOut(*args):
 
 print(logWith("Running"))
 
-keyboard.add_hotkey('ctrl+shift+a', logWithOut, args=("Test", "food"))
+# keyboard.add_hotkey('ctrl+shift+a', logWithOut, args=("Test", "food"))
 
 
 director = "C:/windowThing/"
@@ -103,14 +103,16 @@ class MainApplication(tk.Frame):
         menu.add_cascade(label="Project Menu", menu=self.project_menu)
         self.project_menu.add_command(label="Termoil", command=self.open_terminal)
         self.project_menu.add_command(label="WebPage", command=self.openWeb)
+        keyboard.add_hotkey('ctrl+shift+a', self.openWeb)
+        keyboard.add_hotkey('ctrl+shift+b', self.raise_window, args=(self.master))
 
 
     def openWeb(self):
-        app = QApplication([])
-        webview = QWebEngineView()
-        webview.load(QUrl("https://www.google.com"))
-        webview.show()
-        app.exec_()
+        self.web_app = QApplication([])
+        self.web_webview = QWebEngineView()
+        self.web_webview.load(QUrl("https://www.google.com"))
+        self.web_webview.show()
+        self.web_app.exec_()
 
 
 
@@ -129,8 +131,12 @@ class MainApplication(tk.Frame):
         self.is_amazing_var.set(self.settings["Is Amazing"])
         self.radio_var.set(self.settings["Radio"])
         self.is_top_var.set(self.settings["topmost"])
-        self.master.wm_attributes("-topmost", int(self.settings["topmost"])*30)
+        self.master.wm_attributes("-topmost", self.settings["topmost"])
 
+    def raise_window(self, window):
+        window.attributes('-topmost', True)
+        window.attributes('-topmost', False)
+        window.focus_force()
 
     def makeAppDataStuff(self):
         try:
