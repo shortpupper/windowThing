@@ -2,7 +2,9 @@ from tkinter import *
 from tkinter import ttk, filedialog
 import tkinter as tk
 
-import time, os, keyboard, toml
+import time, os, keyboard, toml, webview
+
+
 
 
 ## functions 
@@ -43,7 +45,7 @@ class MainApplication(tk.Frame):
         file_menu.add_command(label="Save settings location", command=self.save_file)
 
 
-         # create a "Settings" dropdown menu
+        # create a "Settings" dropdown menu
         settings_menu = tk.Menu(menu)
         menu.add_cascade(label="Settings", menu=settings_menu)
 
@@ -54,21 +56,55 @@ class MainApplication(tk.Frame):
         # add a "Is Amazing" checkbox to the advanced settings menu
         self.is_amazing_var = tk.BooleanVar()
         self.is_amazing_var.set(False)
-        advanced_menu.add_checkbutton(label="Is Amazing", variable=self.is_amazing_var)
+        advanced_menu.add_checkbutton(label="Is Amazing", variable=self.is_amazing_var, command=self.save_settings)
+
+        # add a "Is Amazing" checkbox to the advanced settings menu
+        self.is_top_var = tk.BooleanVar()
+        self.is_top_var.set(False)
+        advanced_menu.add_checkbutton(label="Is Top", variable=self.is_top_var, command=self.save_settings)
+
 
         # add a radio button group to the advanced settings menu
         self.radio_var = tk.StringVar()
         self.radio_var.set("foo")
-        advanced_menu.add_radiobutton(label="Print 'foo'", variable=self.radio_var, value="foo")
-        advanced_menu.add_radiobutton(label="Set text size to 24px", variable=self.radio_var, value="size")
-        advanced_menu.add_radiobutton(label="Do nothing", variable=self.radio_var, value="nothing")
+        advanced_menu.add_radiobutton(label="Print 'foo'", variable=self.radio_var, value="foo", command=self.save_settings)
+        advanced_menu.add_radiobutton(label="Set text size to 24px", variable=self.radio_var, value="size", command=self.save_settings)
+        advanced_menu.add_radiobutton(label="Do nothing", variable=self.radio_var, value="nothing", command=self.save_settings)
 
         # add an "All settings" item to the settings menu
-        settings_menu.add_command(label="All settings window", command=self.save_settings)
+        settings_menu.add_command(label="All settings window", command=self.open_all_settings)
 
 
         self.makeFileData_button = tk.Button(self.master, text="Make app data", command=self.makeAppDataStuff)
         self.makeFileData_button.pack()
+
+        try:
+            self.load_settings()
+            print("Loaded settings")
+        except:
+            print("Failed to load settings")
+        
+        # create a "Settings" dropdown menu
+        self.project_menu = tk.Menu(menu)
+        menu.add_cascade(label="Project Menu", menu=self.project_menu)
+        self.project_menu.add_command(label="Termoil", command=self.open_terminal)
+
+    # define a function to open a window with a terminal
+    def open_terminal(self, n):
+        os.startfile()
+
+
+    # define a function to load settings from a TOML file
+    def load_settings(self):
+        # read the TOML file
+        with open(director + "settings.toml", "r") as f:
+            self.settings = toml.load(f)
+
+        # update the widgets with the settings from the file
+        self.is_amazing_var.set(self.settings["Is Amazing"])
+        self.radio_var.set(self.settings["Radio"])
+        self.is_top_var.set(self.settings["topmost"])
+        self.master.wm_attributes("-topmost", int(self.settings["topmost"])*30)
 
 
     def makeAppDataStuff(self):
@@ -94,12 +130,12 @@ class MainApplication(tk.Frame):
 
     def open_all_settings(self):
         # create the "All settings" window
-        settings_window = tk.Toplevel(self.master)
-        settings_window.title("All Settings")
-        settings_window.geometry("400x300")
+        self.settings_window = tk.Toplevel(self.master)
+        self.settings_window.title("All Settings")
+        self.settings_window.geometry("400x300")
 
         # create a tab control
-        tab_control = ttk.Notebook(settings_window)
+        tab_control = ttk.Notebook(self.settings_window)
         tab_control.pack(expand=1, fill="both")
 
         # create the "Settings" tab
@@ -109,6 +145,10 @@ class MainApplication(tk.Frame):
         # add the current values of all settings
         self.is_amazing_label = tk.Label(settings_tab, text=f"Is Amazing: {self.is_amazing_var.get()}")
         self.is_amazing_label.pack()
+        
+        # add the current values of all settings
+        self.is_top_label = tk.Label(settings_tab, text=f"Is Top: {self.is_top_var.get()}")
+        self.is_top_label.pack()
 
         
         # create the "Change values" tab
@@ -118,6 +158,9 @@ class MainApplication(tk.Frame):
 
         self.is_amazing_checkbutton = tk.Checkbutton(change_values_tab, text="Is Amazing", variable=self.is_amazing_var)
         self.is_amazing_checkbutton.pack()
+
+        self.is_top_checkbutton = tk.Checkbutton(change_values_tab, text="Is Top", variable=self.is_top_var)
+        self.is_top_checkbutton.pack()
 
         self.radio_label = tk.Label(settings_tab, text=f"Radio2: {self.radio_var.get()}")
         self.radio_label.pack()
@@ -137,24 +180,36 @@ class MainApplication(tk.Frame):
         # add a "Save" button to the "Change Values" tab
         save_button = tk.Button(change_values_tab, text="Save", command=self.save_settings)
         save_button.pack()
+
+        self.settings_window.wm_attributes("-topmost", int(self.settings["topmost"])*29)
     
-    def save_settings(self):
+    def save_settings(self, update=False):
         # apply the new settings
         is_amazing = self.is_amazing_var.get()
         radio = self.radio_var.get()
+        is_top = self.is_top_var.get()
 
         # save the settings to a TOML file
         settings_dict = {
             "Is Amazing": is_amazing,
-            "Radio": radio
+            "Radio": radio,
+            "topmost": is_top
         }
         with open(director+"settings.toml", "w") as f:
             toml.dump(settings_dict, f)
         
-        # update the "All Settings" tab to reflect the new values
-        self.is_amazing_label.config(text=f"Is Amazing: {self.is_amazing_var.get()}")
-        self.radio_label.config(text=f"Radio: {self.radio_var.get()}")
-        self.did_save.config(text="Saved.", fg="green")
+        if update:
+            # update the "All Settings" tab to reflect the new values
+            self.is_amazing_label.config(text=f"Is Amazing: {self.is_amazing_var.get()}")
+            self.is_top_label.config(text=f"Is Top: {self.is_amazing_var.get()}")
+            self.radio_label.config(text=f"Radio: {self.radio_var.get()}")
+            self.did_save.config(text="Saved.", fg="green")
+        
+        try:
+            self.load_settings()
+            print("reloaded settings")
+        except:
+            print("Failed to reload settings")
 
     def save_file(self):
         # open a file dialog box for saving a file
