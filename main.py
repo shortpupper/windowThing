@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk, filedialog
 import tkinter as tk
+from tkinterweb import HtmlFrame #import the HTML browser
 
 import time, os, keyboard, toml#, webview
 
@@ -85,6 +86,8 @@ class MainApplication(tk.Frame):
         advanced_menu.add_radiobutton(label="Set text size to 24px", variable=self.radio_var, value="size", command=self.save_settings)
         advanced_menu.add_radiobutton(label="Do nothing", variable=self.radio_var, value="nothing", command=self.save_settings)
 
+        # keyboard.add_hotkey('ctrl+shift+c', self.openW3b, args=())
+
         # add an "All settings" item to the settings menu
         settings_menu.add_command(label="All settings window", command=self.open_all_settings)
 
@@ -103,16 +106,22 @@ class MainApplication(tk.Frame):
         menu.add_cascade(label="Project Menu", menu=self.project_menu)
         self.project_menu.add_command(label="Termoil", command=self.open_terminal)
         self.project_menu.add_command(label="WebPage", command=self.openWeb)
+        self.project_menu.add_command(label="Wordle",  command=lambda: self.openWeb("https://wordleespanol.org/"))
         keyboard.add_hotkey('ctrl+shift+a', self.openWeb)
         keyboard.add_hotkey('ctrl+shift+b', self.raise_window, args=(self.master))
 
 
-    def openWeb(self):
+    def openWeb(self, site="https://www.google.com/"):
         self.web_app = QApplication([])
         self.web_webview = QWebEngineView()
-        self.web_webview.load(QUrl("https://www.google.com"))
+        self.web_webview.load(QUrl(site))
         self.web_webview.show()
         self.web_app.exec_()
+    
+    def openW3b(self):
+        frame = HtmlFrame(self.master) #create HTML browser
+        frame.load_website("http://tkhtml.tcl.tk/tkhtml.html") #load a website
+        frame.pack(fill="both", expand=True) #attach the HtmlFrame widget to the parent windowframe = HtmlFrame(root) #create HTML browser
 
 
 
