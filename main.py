@@ -33,11 +33,14 @@ def logWithOut(*args):
     print(( ", ".join(list(args)) ) + "  @ " + time.ctime())
 
 
+
+
 ## code that runs
 
 print(logWith("Running"))
 
 # keyboard.add_hotkey('ctrl+shift+a', logWithOut, args=("Test", "food"))
+
 
 
 director = "C:/windowThing/"
@@ -95,21 +98,36 @@ class MainApplication(tk.Frame):
         self.makeFileData_button = tk.Button(self.master, text="Make app data", command=self.makeAppDataStuff)
         self.makeFileData_button.pack()
 
+        
+        
+        # create a "Settings" dropdown menu
+        self.project_menu = tk.Menu(menu)
+        menu.add_cascade(label="Project Menu", menu=self.project_menu)
+        
+        self.project_menu.add_command(label="Termoil", command=self.open_terminal)
+        self.project_menu.add_command(label="WebPage", command=self.openWeb)
+        self.project_menu.add_command(label="Wordle",  command=lambda: self.openWeb("https://wordleespanol.org/"))
+        
+        keyboard.add_hotkey('ctrl+shift+a', self.openWeb)
+        keyboard.add_hotkey('ctrl+shift+b', self.raise_window, args=(self.master))
+
+
+        # makeing notes
+        self.project_menu.add_command(label="Notes", command=self.notesWindow)
+
+
+        # keep this at the bottem to stop any errors
         try:
             self.load_settings()
             print("Loaded settings")
         except:
             print("Failed to load settings")
-        
-        # create a "Settings" dropdown menu
-        self.project_menu = tk.Menu(menu)
-        menu.add_cascade(label="Project Menu", menu=self.project_menu)
-        self.project_menu.add_command(label="Termoil", command=self.open_terminal)
-        self.project_menu.add_command(label="WebPage", command=self.openWeb)
-        self.project_menu.add_command(label="Wordle",  command=lambda: self.openWeb("https://wordleespanol.org/"))
-        keyboard.add_hotkey('ctrl+shift+a', self.openWeb)
-        keyboard.add_hotkey('ctrl+shift+b', self.raise_window, args=(self.master))
 
+    def notesWindow(self):
+        pass
+
+    def mocroRecoder(self, deration):
+        pass
 
     def openWeb(self, site="https://www.google.com/"):
         self.web_app = QApplication([])
@@ -141,6 +159,7 @@ class MainApplication(tk.Frame):
         self.radio_var.set(self.settings["Radio"])
         self.is_top_var.set(self.settings["topmost"])
         self.master.wm_attributes("-topmost", self.settings["topmost"])
+    
 
     def raise_window(self, window):
         window.attributes('-topmost', True)
@@ -230,13 +249,13 @@ class MainApplication(tk.Frame):
         is_top = self.is_top_var.get()
 
         # save the settings to a TOML file
-        settings_dict = {
+        self.settings_dict = {
             "Is Amazing": is_amazing,
             "Radio": radio,
             "topmost": is_top
         }
         with open(director+"settings.toml", "w") as f:
-            toml.dump(settings_dict, f)
+            toml.dump(self.settings_dict, f)
         
         if update:
             # update the "All Settings" tab to reflect the new values
